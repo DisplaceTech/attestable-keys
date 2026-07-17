@@ -196,12 +196,55 @@ should report nothing.
 
 ## ⚠️ HUMAN — cannot be done by an assistant, do these yourself
 
-- [ ] Create the Cloudflare Pages project pointing at this repo, deployed for
-      `keys.displace.tech`.
-- [ ] Add the DNS `CNAME` for `keys.displace.tech` in the `displace.tech` Cloudflare
-      zone.
-- [ ] Turn on branch protection for `main` (no force push — spec §8) once this repo
-      is pushed to GitHub.
+No tool available in this environment can create Cloudflare resources
+(no `wrangler`, no Cloudflare API credentials, and the Cloudflare MCP tools
+present here cover Workers/D1/KV/R2/Hyperdrive — not Pages project or DNS
+record creation). Every step below is dashboard/CLI work for a human.
+
+### Cloudflare Pages project setup
+
+1. **Dashboard → Workers & Pages → Create → Pages → Connect to Git** → select
+   `DisplaceTech/attestable-keys`.
+2. Build settings — this is a pure static site, there is no build step:
+   - Framework preset: **None**
+   - Build command: *(leave empty)*
+   - Build output directory: `/`
+   - Production branch: `main`
+3. **Deploy.** Cloudflare builds and serves from the repo root as-is; `_headers`
+   is picked up automatically.
+4. **Pages project → Custom domains → Add custom domain → `keys.displace.tech`.**
+   If the `displace.tech` zone is on the same Cloudflare account, Pages creates
+   and manages the DNS `CNAME` for you — no separate manual DNS step needed. If
+   it's on a different account, add the `CNAME` in the `displace.tech` zone
+   pointing at the `*.pages.dev` hostname Cloudflare gives you, then add the
+   custom domain in step 4 once DNS resolves.
+5. Verify: `https://keys.displace.tech/keys.json` loads, and
+   `curl -sI https://keys.displace.tech/attestable-2026-a.pub` (once minted)
+   shows `cache-control: max-age=31536000, immutable` per `_headers`.
+
+### Deploy triggers
+
+The Git integration above already auto-deploys **every push to `main`** — that's
+the normal "commit → live" flow this repo is designed around, and it's what
+gives the "single source, cannot diverge" property from spec §8. No hook is
+required for that.
+
+A **Deploy Hook** is a separate, optional Cloudflare Pages feature: a unique
+webhook URL that triggers a fresh deployment of a given branch *without* a new
+commit — useful if you ever need to force a rebuild (e.g. after a Cloudflare-side
+config change with no repo change). To create one: **Pages project → Settings →
+Builds & deployments → Deploy hooks → Add deploy hook** (name it, pick branch
+`main`). It hands you a URL; triggering it is just:
+```bash
+curl -X POST "<the deploy hook URL Cloudflare gives you>"
+```
+Not needed for routine key/manifest updates — those go live on push automatically.
+
+### Remaining checklist
+
+- [ ] Cloudflare Pages project created and deploying `main` (above).
+- [ ] Custom domain `keys.displace.tech` attached and resolving over HTTPS.
+- [ ] Turn on branch protection for `main` on GitHub (no force push — spec §8).
 - [ ] Complete the first key commit above; replace every `PENDING-OFFLINE-MINT`
       fingerprint with the real one.
 - [ ] Run `ots stamp` at mint time and `ots upgrade` ~24h later on
