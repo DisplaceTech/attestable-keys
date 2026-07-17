@@ -7,82 +7,144 @@
 <style>
   :root {
     color-scheme: light dark;
-  }
-  body {
-    font-family: Georgia, "Times New Roman", serif;
-    line-height: 1.5;
-    max-width: 46rem;
-    margin: 2.5rem auto;
-    padding: 0 1.25rem;
-    color: #1a1a1a;
-    background: #fff;
+    --bg: #ffffff;
+    --fg: #1f2328;
+    --muted: #59636e;
+    --border: #d0d7de;
+    --code-bg: #f6f8fa;
+    --link: #0969da;
+    --active: #1a7f37;
+    --retired: #59636e;
+    --revoked: #cf222e;
   }
   @media (prefers-color-scheme: dark) {
-    body { color: #e4e4e4; background: #111; }
-    a { color: #8ab4ff; }
-    code, .mono { background: #1c1c1c; }
-    hr { border-top-color: #333; }
-    table { border-color: #333; }
-    th, td { border-color: #333; }
+    :root {
+      --bg: #0d1117;
+      --fg: #e6edf3;
+      --muted: #8b949e;
+      --border: #30363d;
+      --code-bg: #161b22;
+      --link: #8ab4ff;
+      --active: #3fb950;
+      --retired: #8b949e;
+      --revoked: #f85149;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    max-width: 44rem;
+    margin: 3rem auto;
+    padding: 0 1.25rem 3rem;
+    color: var(--fg);
+    background: var(--bg);
+  }
+  a { color: var(--link); }
+  a:focus-visible, button:focus-visible {
+    outline: 2px solid var(--link);
+    outline-offset: 2px;
   }
   h1 {
-    font-size: 1.4rem;
-    margin-bottom: 0.1rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0 0 0.15rem;
   }
   .subtitle {
-    color: #666;
+    color: var(--muted);
     font-size: 0.95rem;
-    margin-top: 0;
+    margin: 0 0 1.75rem;
   }
   hr {
     border: none;
-    border-top: 1px solid #ccc;
-    margin: 1.75rem 0;
+    border-top: 1px solid var(--border);
+    margin: 2rem 0;
   }
   h2 {
-    font-size: 1.05rem;
-    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin: 0 0 0.9rem;
   }
+  h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 1.5rem 0 0.6rem;
+  }
+  p { margin: 0 0 1rem; }
   code, .mono {
-    font-family: "Courier New", ui-monospace, monospace;
-    background: #f2f2f2;
-    padding: 0.05rem 0.3rem;
-    border-radius: 2px;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Menlo, Consolas, monospace;
+    font-size: 0.88em;
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
     word-break: break-all;
+  }
+  .table-wrap {
+    overflow-x: auto;
+    margin: 0 0 1rem;
   }
   table {
     border-collapse: collapse;
     width: 100%;
-    margin: 1rem 0;
-    font-size: 0.92rem;
+    font-size: 0.9rem;
   }
   th, td {
-    border: 1px solid #ccc;
-    padding: 0.4rem 0.6rem;
+    border-bottom: 1px solid var(--border);
+    padding: 0.55rem 0.7rem 0.55rem 0;
     text-align: left;
     vertical-align: top;
+    white-space: nowrap;
   }
   th {
-    font-weight: bold;
-    background: transparent;
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
+  td:last-child, th:last-child { padding-right: 0; white-space: normal; }
+  .status { display: inline-flex; align-items: center; gap: 0.4em; white-space: nowrap; }
+  .status::before {
+    content: "";
+    width: 0.55em;
+    height: 0.55em;
+    border-radius: 50%;
+    background: currentColor;
+    flex: none;
+  }
+  .status-active  { color: var(--active); }
+  .status-retired { color: var(--retired); }
+  .status-revoked { color: var(--revoked); }
   ul.files {
     list-style: none;
     padding: 0;
+    margin: 0 0 1rem;
   }
   ul.files li {
-    margin: 0.25rem 0;
+    margin: 0.35rem 0;
   }
   blockquote {
-    margin: 0;
-    padding-left: 1rem;
-    border-left: 3px solid #ccc;
+    margin: 0 0 1rem;
+    padding: 0.1rem 0 0.1rem 1rem;
+    border-left: 3px solid var(--border);
+    color: var(--fg);
     font-size: 0.95rem;
   }
+  blockquote p:last-child { margin-bottom: 0; }
   footer {
-    color: #666;
+    color: var(--muted);
     font-size: 0.85rem;
     margin-top: 2.5rem;
+  }
+  footer p { margin: 0.2rem 0; }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
   }
 </style>
 </head>
@@ -103,6 +165,7 @@
 
 <h2>Keys</h2>
 
+<div class="table-wrap">
 <table>
   <thead>
     <tr>
@@ -117,7 +180,7 @@
   <tbody>
     <tr>
       <td><code>attestable-2026-a</code></td>
-      <td>active</td>
+      <td><span class="status status-active">active</span></td>
       <td><code>2026-07-16</code></td>
       <td><code>2026-07-20</code></td>
       <td><code>2027-07-20</code></td>
@@ -125,6 +188,7 @@
     </tr>
   </tbody>
 </table>
+</div>
 
 <p>
   <strong>Note:</strong> the fingerprint above reads <code>PENDING-OFFLINE-MINT</code>
