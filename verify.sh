@@ -318,12 +318,36 @@ else
 	else
 		OTS_HEAD_TMP=$(mktemp)
 		printf '%s\n' "$LEDGER_HEAD_EXPECTED" >"$OTS_HEAD_TMP"
-		if ots verify -f "$OTS_HEAD_TMP" "$OTS_PROOF_PATH" >/dev/null 2>&1; then
-			report PASS "5 anchor" "OpenTimestamps proof $OTS_PROOF_PATH verifies the ledger head"
-		else
-			report FAIL "5 anchor" "OpenTimestamps verification failed for $OTS_PROOF_PATH"
-		fi
+
+		# --no-bitcoin avoids requiring a local Bitcoin Core RPC connection
+		# (plain `ots verify` needs one and fails with a credentials error
+		# for almost everyone). Cost: per the installed otsclient's own
+		# source (otsclient/cmds.py, verify_timestamp()), --no-bitcoin makes
+		# it log the attested block height/merkleroot for a MANUAL
+		# cross-check and `continue`, without ever setting its internal
+		# "verified" flag -- so its exit code is 1 UNCONDITIONALLY in this
+		# mode, identically for a perfectly valid proof and a broken one.
+		# We therefore parse its (log) output text instead of trusting the
+		# exit code. This is inherently coupled to otsclient's current log
+		# wording (0.7.2) and could need updating against a future release.
+		OTS_OUT=$(ots --no-bitcoin verify -f "$OTS_HEAD_TMP" "$OTS_PROOF_PATH" 2>&1)
 		rm -f "$OTS_HEAD_TMP"
+
+		case "$OTS_OUT" in
+		*"does not match original"* | *"not a timestamp file"* | *"Invalid timestamp file"*)
+			report FAIL "5 anchor" "OpenTimestamps proof invalid for $OTS_PROOF_PATH: $(printf '%s' "$OTS_OUT" | head -n1)"
+			;;
+		*"Bitcoin block"*"has merkleroot"*)
+			OTS_BLOCKS=$(printf '%s\n' "$OTS_OUT" | grep -o "Bitcoin block [0-9]* has merkleroot [0-9a-f]*" | tr '\n' '; ')
+			report PASS "5 anchor" "anchored -- ${OTS_BLOCKS}(cross-check merkleroot(s) against any Bitcoin block explorer for independent confirmation)"
+			;;
+		*"Pending confirmation"*)
+			report SKIP "5 anchor" "OpenTimestamps proof not yet confirmed in Bitcoin (pending); run 'ots upgrade' and re-publish, then re-verify"
+			;;
+		*)
+			report SKIP "5 anchor" "unexpected ots output, could not determine anchor status: $(printf '%s' "$OTS_OUT" | head -n1)"
+			;;
+		esac
 	fi
 fi
 

@@ -255,20 +255,26 @@ assert_contains "T13 manifest revoked: FAIL" "$out" "FAIL 2 manifest"
 # ---------------------------------------------------------------------------
 cat >"$FAKEBIN/ots" <<'EOF'
 #!/bin/sh
-# Test stub: "verify -f HEADFILE PROOF" succeeds iff PROOF contains "VALID".
-if [ "$1" = "verify" ]; then
-	shift
-	proof=""
-	prev=""
-	for arg in "$@"; do
-		if [ "$prev" != "-f" ]; then
-			proof=$arg
-		fi
-		prev=$arg
-	done
-	grep -qx VALID "$proof" 2>/dev/null && exit 0
-	exit 1
-fi
+# Test stub mimicking `ots --no-bitcoin verify -f HEADFILE PROOF`'s output.
+# verify.sh always invokes it in exactly this shape (--no-bitcoin verify -f
+# HEADFILE PROOF), so $5 is the proof path. The real otsclient 0.7.2 always
+# exits 1 in --no-bitcoin mode regardless of validity (see verify.sh's
+# anchor-check comment) -- this stub does the same, and a marker word
+# inside PROOF selects which real-world message verify.sh has to parse.
+proof=$5
+marker=$(cat "$proof" 2>/dev/null)
+case "$marker" in
+VALID)
+	echo "Not checking Bitcoin attestation; Bitcoin disabled"
+	echo "To verify manually, check that Bitcoin block 958355 has merkleroot 121a43b61b019c5ae15d9c0591d632ce87aa52db346c39ace878a0a59a799306"
+	;;
+PENDING)
+	echo "Calendar https://alice.btc.calendar.opentimestamps.org: Pending confirmation in Bitcoin blockchain"
+	;;
+*)
+	echo "File does not match original!"
+	;;
+esac
 exit 1
 EOF
 chmod +x "$FAKEBIN/ots"
@@ -279,8 +285,9 @@ build_valid_pack "$d" "$SECKEY" "$PUBKEY" "$PIN"
 printf 'VALID\n' >"$d/head.ots"
 out=$(PATH="$FAKEBIN:$NO_OTS_PATH" "$VERIFY" "$d/attestation.json" "$d/evidence-pack.pdf" "$d/pubkey.pub" "$d/ledger.jsonl" 2>&1)
 rc=$?
-assert_exit "T14a anchor valid proof: exit code" 0 "$rc"
-assert_contains "T14a anchor valid proof: PASS" "$out" "PASS 5 anchor"
+assert_exit "T14a anchor confirmed block: exit code" 0 "$rc"
+assert_contains "T14a anchor confirmed block: PASS" "$out" "PASS 5 anchor"
+assert_contains "T14a anchor confirmed block: block height in detail" "$out" "958355"
 
 d=$WORK/t14b
 mkdir -p "$d"
@@ -288,8 +295,18 @@ build_valid_pack "$d" "$SECKEY" "$PUBKEY" "$PIN"
 printf 'INVALID\n' >"$d/head.ots"
 out=$(PATH="$FAKEBIN:$NO_OTS_PATH" "$VERIFY" "$d/attestation.json" "$d/evidence-pack.pdf" "$d/pubkey.pub" "$d/ledger.jsonl" 2>&1)
 rc=$?
-assert_exit "T14b anchor invalid proof: exit code" 1 "$rc"
-assert_contains "T14b anchor invalid proof: FAIL" "$out" "FAIL 5 anchor"
+assert_exit "T14b anchor mismatched proof: exit code" 1 "$rc"
+assert_contains "T14b anchor mismatched proof: FAIL" "$out" "FAIL 5 anchor"
+
+d=$WORK/t14c
+mkdir -p "$d"
+build_valid_pack "$d" "$SECKEY" "$PUBKEY" "$PIN"
+printf 'PENDING\n' >"$d/head.ots"
+out=$(PATH="$FAKEBIN:$NO_OTS_PATH" "$VERIFY" "$d/attestation.json" "$d/evidence-pack.pdf" "$d/pubkey.pub" "$d/ledger.jsonl" 2>&1)
+rc=$?
+assert_exit "T14c anchor pending confirmation: exit code" 0 "$rc"
+assert_contains "T14c anchor pending confirmation: SKIP" "$out" "SKIP 5 anchor"
+assert_contains "T14c anchor pending confirmation: mentions pending" "$out" "pending"
 
 # ---------------------------------------------------------------------------
 echo

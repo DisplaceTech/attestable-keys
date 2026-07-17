@@ -116,6 +116,15 @@ backup medium; passphrase in the password manager only; the two are never stored
 together. The plaintext key exists only in `/tmp` during a signing session and is
 `shred -u`'d immediately after (RUNBOOK §5.4).
 
+**Provenance record:** `attestable-2026-a.pub.ots` is upgraded and anchored in three
+independent Bitcoin blocks — 958355, 958357, 958383, confirmed 2026-07-17 UTC (any
+one suffices; three means no single OpenTimestamps calendar is a trust dependency).
+Verify with `ots --no-bitcoin verify -f attestable-2026-a.pub attestable-2026-a.pub.ots`
+and cross-check the printed merkleroot(s) against any block explorer (e.g.
+mempool.space) — independently confirmed against mempool.space at the time of
+writing. Plain `ots verify` (no `--no-bitcoin`) requires your own Bitcoin Core RPC
+node and will fail with a credentials error without one; that's expected, not a bug.
+
 ## Rotation & revocation
 
 Policy text (published verbatim on `index.html`, spec §7):
@@ -244,10 +253,10 @@ Not needed for routine key/manifest updates — those go live on push automatica
 
 - [x] Cloudflare Pages project created and deploying `main` (above).
 - [x] Custom domain `keys.displace.tech` attached and resolving over HTTPS.
-- [ ] Turn on branch protection for `main` on GitHub (no force push — spec §8).
-- [ ] Complete the first key commit above; replace every `PENDING-OFFLINE-MINT`
+- [x] Turn on branch protection for `main` on GitHub (no force push — spec §8).
+- [x] Complete the first key commit above; replace every `PENDING-OFFLINE-MINT`
       fingerprint with the real one.
-- [ ] Run `ots stamp` at mint time and `ots upgrade` ~24h later on
+- [x] Run `ots stamp` at mint time and `ots upgrade` ~24h later on
       `attestable-2026-a.pub.ots`; publish the upgraded proof.
-- [ ] Separately, on the `displace.tech` site/repo (not this one): publish
+- [x] Separately, on the `displace.tech` site/repo (not this one): publish
       `/.well-known/security.txt` per spec §9.
