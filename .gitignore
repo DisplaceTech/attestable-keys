@@ -1,0 +1,4 @@
+# Safety net: private key material must never exist in this repo, let alone
+# be committed. Only the *.pub file is ever supposed to land here.
+*.key
+*.key.age
