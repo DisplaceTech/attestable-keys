@@ -12,9 +12,10 @@
 #
 # Canonicalization for the chain check (#4) follows TDD #8's "fixed-key-order
 # serializer" option: `jq -cS` (recursively sorted keys, compact, no added
-# trailing newline) over each ledger event with its "hash" field set to the
-# empty string. This MUST match whatever the ledger-producing tooling
-# (attestable-ops, a private repo) actually implements -- see README.
+# trailing newline) over each ledger event with its "hash" field REMOVED
+# (not set to an empty string). This matches attestable-ops's normative
+# convention (the private repo that actually produces these ledgers) --
+# see README.
 
 set -u
 
@@ -264,7 +265,7 @@ while IFS= read -r RAW_LINE || [ -n "$RAW_LINE" ]; do
 		break
 	fi
 
-	CANONICAL=$(printf '%s\n' "$RAW_LINE" | jq -cS '. + {hash: ""}')
+	CANONICAL=$(printf '%s\n' "$RAW_LINE" | jq -cS 'del(.hash)')
 	COMPUTED_HASH=$(printf '%s' "$CANONICAL" | sha256sum | awk '{print $1}')
 
 	if [ "$COMPUTED_HASH" != "$STORED_HASH" ]; then

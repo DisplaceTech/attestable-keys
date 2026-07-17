@@ -168,19 +168,22 @@ arguments for full usage.
 verify.sh [-f] <attestation.json> <evidence-pack.pdf> <pubkey-file> <ledger-export.jsonl>
 ```
 
-**Canonicalization assumption (please read):** the chain check (spec §6.4,
-TDD §8) recomputes each ledger event's hash by taking `jq -cS` (recursively
-sorted keys, compact, no added trailing newline) over the event with its `hash`
-field set to `""`, then `sha256sum`-ing the result. TDD §8 permits either JCS
-(RFC 8785) or "a fixed-key-order serializer with tests" — `jq -cS` is the latter,
-chosen because it is achievable within the verifier's fixed dependency set
-(`sh`/`minisign`/`sha256sum`/`jq`, no JCS-compliant tool available). **This must
-match whatever the ledger-producing tooling in the private `attestable-ops` repo
-(`bin/append`, per RUNBOOK §3) actually implements** — that tooling lives outside
-this repo and wasn't available to check against while writing this verifier.
-Before the first real pack ships, confirm `bin/append`'s hash computation is
-byte-for-byte this same serialization, or `verify.sh`'s chain check will FAIL
-against genuinely-untampered ledgers.
+**Canonicalization (verified against attestable-ops):** the chain check (spec §6.4,
+TDD §8) recomputes each ledger event's hash by taking `jq -cS` (recursively sorted
+keys, compact, no added trailing newline) over the event with its `hash` field
+**removed** (not set to `""` — attestable-ops's normative convention), then
+`sha256sum`-ing the result. TDD §8 permits either JCS (RFC 8785) or "a fixed-key-order
+serializer with tests" — `jq -cS` is the latter, chosen because it is achievable
+within the verifier's fixed dependency set (`sh`/`minisign`/`sha256sum`/`jq`, no
+JCS-compliant tool available).
+
+This was cross-checked directly against the private `attestable-ops` repo (which
+actually produces ledgers, via `bin/append`/`src/Jcs.php`): its golden fixture
+ledger (`tests/golden/ledger-chain.jsonl`, PHP-computed hashes) was run through
+this exact `verify.sh`, and the chain check passed — the two independent
+implementations (jq/shell here, PHP's RFC 8785 canonicalizer there) agree
+byte-for-byte. If attestable-ops's hash convention ever changes, this note and
+the `jq -cS 'del(.hash)'` line below need to change together.
 
 ### Testing
 

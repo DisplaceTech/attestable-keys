@@ -5,10 +5,11 @@
 # repository layout (see README).
 
 # canon_hash JSON_OBJECT -- mirror verify.sh's own canonicalization exactly:
-# jq -cS with "hash" zeroed, hashed with no trailing newline.
+# jq -cS with "hash" REMOVED (attestable-ops's normative convention, not
+# set to an empty string), hashed with no trailing newline.
 canon_hash() {
 	canon_hash_json=$1
-	canon=$(printf '%s\n' "$canon_hash_json" | jq -cS '. + {hash: ""}')
+	canon=$(printf '%s\n' "$canon_hash_json" | jq -cS 'del(.hash)')
 	printf '%s' "$canon" | sha256sum | awk '{print $1}'
 }
 
