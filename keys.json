@@ -1,0 +1,20 @@
+{
+  "spec_version": 1,
+  "issuer": "Displace Technologies LLC",
+  "updated": "2026-07-16T00:00:00Z",
+  "keys": [
+    {
+      "key_id": "attestable-2026-a",
+      "alg": "ed25519",
+      "format": "minisign",
+      "created": "2026-07-16",
+      "status": "active",
+      "valid_from": "2026-07-20",
+      "valid_to": "2027-07-20",
+      "pubkey_file": "attestable-2026-a.pub",
+      "pubkey_sha256": "PENDING-OFFLINE-MINT",
+      "ots_proof": "attestable-2026-a.pub.ots",
+      "revocation": null
+    }
+  ]
+}
