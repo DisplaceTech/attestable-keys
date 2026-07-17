@@ -2,3 +2,7 @@
 # be committed. Only the *.pub file is ever supposed to land here.
 *.key
 *.key.age
+
+# `ots upgrade` writes one of these automatically before rewriting the
+# proof in place; it's just the pre-upgrade backup, not a published artifact.
+*.ots.bak
