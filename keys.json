@@ -12,7 +12,7 @@
       "valid_from": "2026-07-20",
       "valid_to": "2027-07-20",
       "pubkey_file": "attestable-2026-a.pub",
-      "pubkey_sha256": "PENDING-OFFLINE-MINT",
+      "pubkey_sha256": "cd7b4528a78ec5085942632c7808a5b08e2cbce084b69b6aa6960d9674088710",
       "ots_proof": "attestable-2026-a.pub.ots",
       "revocation": null
     }

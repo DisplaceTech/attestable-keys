@@ -242,8 +242,8 @@ Not needed for routine key/manifest updates — those go live on push automatica
 
 ### Remaining checklist
 
-- [ ] Cloudflare Pages project created and deploying `main` (above).
-- [ ] Custom domain `keys.displace.tech` attached and resolving over HTTPS.
+- [x] Cloudflare Pages project created and deploying `main` (above).
+- [x] Custom domain `keys.displace.tech` attached and resolving over HTTPS.
 - [ ] Turn on branch protection for `main` on GitHub (no force push — spec §8).
 - [ ] Complete the first key commit above; replace every `PENDING-OFFLINE-MINT`
       fingerprint with the real one.
