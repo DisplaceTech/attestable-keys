@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Attestable Signing Keys — Displace Technologies LLC</title>
+<style>
+  :root {
+    color-scheme: light dark;
+  }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    line-height: 1.5;
+    max-width: 46rem;
+    margin: 2.5rem auto;
+    padding: 0 1.25rem;
+    color: #1a1a1a;
+    background: #fff;
+  }
+  @media (prefers-color-scheme: dark) {
+    body { color: #e4e4e4; background: #111; }
+    a { color: #8ab4ff; }
+    code, .mono { background: #1c1c1c; }
+    hr { border-top-color: #333; }
+    table { border-color: #333; }
+    th, td { border-color: #333; }
+  }
+  h1 {
+    font-size: 1.4rem;
+    margin-bottom: 0.1rem;
+  }
+  .subtitle {
+    color: #666;
+    font-size: 0.95rem;
+    margin-top: 0;
+  }
+  hr {
+    border: none;
+    border-top: 1px solid #ccc;
+    margin: 1.75rem 0;
+  }
+  h2 {
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+  }
+  code, .mono {
+    font-family: "Courier New", ui-monospace, monospace;
+    background: #f2f2f2;
+    padding: 0.05rem 0.3rem;
+    border-radius: 2px;
+    word-break: break-all;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1rem 0;
+    font-size: 0.92rem;
+  }
+  th, td {
+    border: 1px solid #ccc;
+    padding: 0.4rem 0.6rem;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    font-weight: bold;
+    background: transparent;
+  }
+  ul.files {
+    list-style: none;
+    padding: 0;
+  }
+  ul.files li {
+    margin: 0.25rem 0;
+  }
+  blockquote {
+    margin: 0;
+    padding-left: 1rem;
+    border-left: 3px solid #ccc;
+    font-size: 0.95rem;
+  }
+  footer {
+    color: #666;
+    font-size: 0.85rem;
+    margin-top: 2.5rem;
+  }
+</style>
+</head>
+<body>
+
+<h1>Attestable Signing Keys</h1>
+<p class="subtitle">Displace Technologies LLC &middot; canonical: <code>https://keys.displace.tech</code></p>
+
+<p>
+  This page lists every ed25519 signing key ever used to sign Attestable evidence
+  packs, its current status, and the files needed to verify a pack offline. Keys
+  are never reused and never removed from this list, including after rotation or
+  revocation. See <a href="./verify.sh"><code>verify.sh</code></a> for the
+  standalone verifier.
+</p>
+
+<hr>
+
+<h2>Keys</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>key_id</th>
+      <th>status</th>
+      <th>created</th>
+      <th>valid_from</th>
+      <th>valid_to</th>
+      <th>fingerprint (SHA-256 of pubkey file)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>attestable-2026-a</code></td>
+      <td>active</td>
+      <td><code>2026-07-16</code></td>
+      <td><code>2026-07-20</code></td>
+      <td><code>2027-07-20</code></td>
+      <td><code>PENDING-OFFLINE-MINT</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  <strong>Note:</strong> the fingerprint above reads <code>PENDING-OFFLINE-MINT</code>
+  until the key is minted offline per spec &sect;2 and this page, <code>keys.json</code>,
+  and <code>keys.json.minisig</code> are updated and re-signed together. Do not trust
+  a pack pinned against this key until the real fingerprint is published here.
+  Separately, this key does not become valid until <code>valid_from</code>
+  (<code>2026-07-20</code>), and expires at <code>valid_to</code>
+  (<code>2027-07-20</code>): a pack timestamped outside that window will fail the
+  manifest check in <code>verify.sh</code> even if every signature is otherwise
+  intact.
+</p>
+
+<h3>attestable-2026-a &mdash; files</h3>
+<ul class="files">
+  <li><a href="./attestable-2026-a.pub"><code>attestable-2026-a.pub</code></a> &mdash; public key (minisign format)</li>
+  <li><a href="./attestable-2026-a.pub.ots"><code>attestable-2026-a.pub.ots</code></a> &mdash; OpenTimestamps existence proof for the pubkey file</li>
+</ul>
+
+<hr>
+
+<h2>Manifest &amp; verifier</h2>
+<ul class="files">
+  <li><a href="./keys.json"><code>keys.json</code></a> &mdash; machine-readable manifest of all keys</li>
+  <li><a href="./keys.json.minisig"><code>keys.json.minisig</code></a> &mdash; detached signature over <code>keys.json</code> by the newest active key</li>
+  <li><a href="./verify.sh"><code>verify.sh</code></a> &mdash; standalone POSIX-shell evidence pack verifier</li>
+  <li><a href="./verify.sh.minisig"><code>verify.sh.minisig</code></a> &mdash; detached signature over <code>verify.sh</code> by the newest active key</li>
+</ul>
+
+<p>
+  Revocation notices, if any are ever issued, are published at
+  <code>/revocations/revocation-&lt;key_id&gt;.txt</code> and linked from the
+  affected key's row above once they exist.
+</p>
+
+<hr>
+
+<h2>Rotation &amp; revocation policy</h2>
+
+<p>Published verbatim from <code>SPEC_Attestable_Key_Publication.md</code> &sect;7:</p>
+
+<blockquote>
+  <p>
+    Keys are never reused. Each key is valid for one year from its
+    <code>valid_from</code> date and is rotated on schedule at expiry; rotation
+    also occurs early on suspected compromise, custody change, or major
+    infrastructure change. On rotation, the outgoing key is marked
+    <code>retired</code> with its validity
+    window; signatures made within that window remain valid indefinitely. On
+    compromise, the key is marked <code>revoked</code> in keys.json with a
+    dated, reasoned revocation notice signed by the successor key; packs
+    signed under a revoked key are re-issued under the successor on request at
+    no charge. All keys ever published remain listed and their pubkey files
+    remain available permanently.
+  </p>
+</blockquote>
+
+<hr>
+
+<h2>Mirror &amp; existence proofs</h2>
+<p>
+  This site is deployed directly from the public mirror repository
+  <code>DisplaceTech/attestable-keys</code> &mdash; the site and the mirror are
+  the same source and cannot diverge. Git history on that repository, GitHub's
+  independent hosting, and the OpenTimestamps proofs above jointly establish
+  that each key existed, unchanged, since the date shown &mdash; without
+  requiring trust in Displace's server.
+</p>
+
+<footer>
+  <p>Issuer: Displace Technologies LLC. Canonical location: <code>https://keys.displace.tech</code>.
+  Public mirror: <code>github.com/DisplaceTech/attestable-keys</code>.</p>
+</footer>
+
+</body>
+</html>
