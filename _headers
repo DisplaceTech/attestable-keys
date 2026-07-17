@@ -1,0 +1,31 @@
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+
+/
+  Content-Type: text/html
+  Cache-Control: max-age=3600
+
+/keys.json
+  Content-Type: application/json
+  Cache-Control: max-age=3600
+
+/keys.json.minisig
+  Content-Type: text/plain
+  Cache-Control: max-age=3600
+
+/verify.sh
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: max-age=3600
+
+/verify.sh.minisig
+  Content-Type: text/plain
+  Cache-Control: max-age=3600
+
+/*.pub
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: max-age=31536000, immutable
+
+/*.ots
+  Content-Type: application/octet-stream
+  Cache-Control: max-age=31536000, immutable
