@@ -62,7 +62,7 @@ existing, since a pack's printed verification page tells a reviewer to fetch the
 ## Operator runbook: first key commit
 
 Do this once, offline, before the first evidence pack is ever delivered
-(`RUNBOOK.md` §0 / spec §2 — commands reproduced verbatim from spec §2):
+(`RUNBOOK_Attestable_Manual_Evidence_Pack.md` §0 / spec §2 — commands reproduced verbatim from spec §2):
 
 ```bash
 # Offline machine or airgapped-enough workstation session
