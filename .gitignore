@@ -6,3 +6,10 @@
 # `ots upgrade` writes one of these automatically before rewriting the
 # proof in place; it's just the pre-upgrade backup, not a published artifact.
 *.ots.bak
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
